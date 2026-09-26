@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Coffee with Yvie</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <video autoplay muted loop id="bg-video">
+        <source src="your-video.mp4" type="video/mp4">
+    </video>
+    <canvas id="webgl"></canvas>
+
+    <div class="content">
+        <header>
+            <nav>
+                <div class="logo">Coffee with Yvie</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html" class="active">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="page-content">
+            <h1>Get in Touch</h1>
+            <div class="contact-info">
+                <p><strong>Address:</strong> 123 Coffee Lane, Bean City</p>
+                <p><strong>Phone:</strong> (555) 123-4567</p>
+                <p><strong>Email:</strong> hello@coffeewithyvie.com</p>
+                <p><strong>Hours:</strong> Mon-Fri 7am - 6pm | Sat-Sun 8am - 4pm</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Coffee with Yvie. All rights reserved.</p>
+        </footer>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
