@@ -22,30 +22,34 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// 4. Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+// 4. Lighting (Warm cafe lighting)
+const ambientLight = new THREE.AmbientLight(0xfff5e6, 1.5); // Warm white
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+const directionalLight = new THREE.DirectionalLight(0xffd700, 3); // Gold directional
 directionalLight.position.set(2, 2, 5);
 scene.add(directionalLight);
 
-// 5. Create 3D Objects (Floating Coffee Beans / Abstract Shapes)
+// 5. Create 3D Objects (Floating Coffee Beans)
 const shapes = [];
 
-function createShape() {
-    // Creating a torus knot to represent coffee/steam abstractly
-    const geometry = new THREE.TorusKnotGeometry(0.3, 0.1, 100, 16);
+function createCoffeeBean() {
+    // A torus knot is a great abstract representation of a coffee bean or steam
+    const geometry = new THREE.TorusKnotGeometry(0.25, 0.08, 64, 8, 2, 3);
     const material = new THREE.MeshStandardMaterial({ 
-        color: 0xf5c542, // Coffee gold
-        roughness: 0.3,
-        metalness: 0.8
+        color: 0x6F4E37, // Coffee brown
+        roughness: 0.4,
+        metalness: 0.6
     });
     const mesh = new THREE.Mesh(geometry, material);
     
-    // Random position
-    mesh.position.x = (Math.random() - 0.5) * 10;
-    mesh.position.y = (Math.random() - 0.5) * 10;
+    // Random position within a sphere
+    const radius = 6;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos((Math.random() * 2) - 1);
+    
+    mesh.position.x = radius * Math.sin(phi) * Math.cos(theta);
+    mesh.position.y = radius * Math.sin(phi) * Math.sin(theta);
     mesh.position.z = (Math.random() - 0.5) * 5;
     
     // Random rotation
@@ -53,15 +57,23 @@ function createShape() {
     mesh.rotation.y = Math.random() * Math.PI;
     
     // Store random speed for animation
-    mesh.userData.speed = 0.01 + Math.random() * 0.02;
+    mesh.userData.speed = 0.005 + Math.random() * 0.01;
+    mesh.userData.floatOffset = Math.random() * 10;
     
     scene.add(mesh);
     shapes.push(mesh);
 }
 
-// Create 15 floating shapes
-for(let i = 0; i < 15; i++) {
-    createShape();
+// Create different amounts of beans based on the page
+const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+let beanCount = 15; // Default for home
+
+if (currentPage === 'menu.html') beanCount = 25; // More beans for menu
+if (currentPage === 'about.html') beanCount = 10; // Fewer beans for about
+if (currentPage === 'contact.html') beanCount = 12; // Medium for contact
+
+for(let i = 0; i < beanCount; i++) {
+    createCoffeeBean();
 }
 
 // 6. Mouse Interaction (Parallax)
@@ -80,12 +92,12 @@ function animate() {
     const elapsedTime = clock.getElapsedTime();
 
     // Rotate and float shapes
-    shapes.forEach((shape, index) => {
+    shapes.forEach((shape) => {
         shape.rotation.x += shape.userData.speed;
-        shape.rotation.y += shape.userData.speed;
+        shape.rotation.y += shape.userData.speed * 1.5;
         
-        // Gentle floating motion
-        shape.position.y += Math.sin(elapsedTime + index) * 0.005;
+        // Gentle floating motion based on time and offset
+        shape.position.y += Math.sin(elapsedTime + shape.userData.floatOffset) * 0.003;
     });
 
     // Parallax effect based on mouse
@@ -109,4 +121,15 @@ window.addEventListener('resize', () => {
 
     renderer.setSize(sizes.width, sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+
+// 9. Mobile Menu Toggle (for all pages)
+const menuToggle = document.createElement('div');
+menuToggle.className = 'menu-toggle';
+menuToggle.innerHTML = '☰';
+document.querySelector('nav').appendChild(menuToggle);
+
+menuToggle.addEventListener('click', () => {
+    const navLinks = document.querySelector('.nav-links');
+    navLinks.classList.toggle('active');
 });
