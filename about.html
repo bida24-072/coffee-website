@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Coffee with Yvie</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <video autoplay muted loop id="bg-video">
+        <source src="your-video.mp4" type="video/mp4">
+    </video>
+    <canvas id="webgl"></canvas>
+
+    <div class="content">
+        <header>
+            <nav>
+                <div class="logo">Coffee with Yvie</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="about.html" class="active">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="page-content">
+            <h1>Our Story</h1>
+            <div class="about-text">
+                <p>Founded in 2024, Coffee with Yvie started as a passion project to bring people together over the perfect cup of coffee.</p>
+                <p>We source our beans from sustainable farms around the world, roasting them in-house to ensure the freshest flavor in every cup.</p>
+                <p>Our 3D digital experience is just the beginning. We believe in blending tradition with technology to create a unique cafe atmosphere.</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Coffee with Yvie. All rights reserved.</p>
+        </footer>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
