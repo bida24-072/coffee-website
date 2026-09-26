@@ -1,135 +1,645 @@
-import * as THREE from 'three';
-
-// 1. Scene Setup
-const canvas = document.querySelector('#webgl');
-const scene = new THREE.Scene();
-
-// 2. Camera Setup
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-};
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-camera.position.z = 5;
-scene.add(camera);
-
-// 3. Renderer Setup
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    alpha: true, // Transparent background so video shows through
-    antialias: true
-});
-renderer.setSize(sizes.width, sizes.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-// 4. Lighting (Warm cafe lighting)
-const ambientLight = new THREE.AmbientLight(0xfff5e6, 1.5); // Warm white
-scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight(0xffd700, 3); // Gold directional
-directionalLight.position.set(2, 2, 5);
-scene.add(directionalLight);
-
-// 5. Create 3D Objects (Floating Coffee Beans)
-const shapes = [];
-
-function createCoffeeBean() {
-    // A torus knot is a great abstract representation of a coffee bean or steam
-    const geometry = new THREE.TorusKnotGeometry(0.25, 0.08, 64, 8, 2, 3);
-    const material = new THREE.MeshStandardMaterial({ 
-        color: 0x6F4E37, // Coffee brown
-        roughness: 0.4,
-        metalness: 0.6
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-    
-    // Random position within a sphere
-    const radius = 6;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos((Math.random() * 2) - 1);
-    
-    mesh.position.x = radius * Math.sin(phi) * Math.cos(theta);
-    mesh.position.y = radius * Math.sin(phi) * Math.sin(theta);
-    mesh.position.z = (Math.random() - 0.5) * 5;
-    
-    // Random rotation
-    mesh.rotation.x = Math.random() * Math.PI;
-    mesh.rotation.y = Math.random() * Math.PI;
-    
-    // Store random speed for animation
-    mesh.userData.speed = 0.005 + Math.random() * 0.01;
-    mesh.userData.floatOffset = Math.random() * 10;
-    
-    scene.add(mesh);
-    shapes.push(mesh);
+/* =========================================
+   1. RESET & BASE
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-// Create different amounts of beans based on the page
-const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-let beanCount = 15; // Default for home
-
-if (currentPage === 'menu.html') beanCount = 25; // More beans for menu
-if (currentPage === 'about.html') beanCount = 10; // Fewer beans for about
-if (currentPage === 'contact.html') beanCount = 12; // Medium for contact
-
-for(let i = 0; i < beanCount; i++) {
-    createCoffeeBean();
+html {
+    scroll-behavior: smooth;
 }
 
-// 6. Mouse Interaction (Parallax)
-let mouseX = 0;
-let mouseY = 0;
-
-window.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX / sizes.width) - 0.5;
-    mouseY = (event.clientY / sizes.height) - 0.5;
-});
-
-// 7. Animation Loop
-const clock = new THREE.Clock();
-
-function animate() {
-    const elapsedTime = clock.getElapsedTime();
-
-    // Rotate and float shapes
-    shapes.forEach((shape) => {
-        shape.rotation.x += shape.userData.speed;
-        shape.rotation.y += shape.userData.speed * 1.5;
-        
-        // Gentle floating motion based on time and offset
-        shape.position.y += Math.sin(elapsedTime + shape.userData.floatOffset) * 0.003;
-    });
-
-    // Parallax effect based on mouse
-    camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-    camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
-    camera.lookAt(scene.position);
-
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
+body {
+    overflow-x: hidden;
+    background-color: #111;
+    color: #fff;
+    line-height: 1.6;
 }
 
-animate();
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #111;
+}
+::-webkit-scrollbar-thumb {
+    background: #6F4E37;
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #f5c542;
+}
 
-// 8. Handle Window Resize
-window.addEventListener('resize', () => {
-    sizes.width = window.innerWidth;
-    sizes.height = window.innerHeight;
+/* =========================================
+   2. VIDEO BACKGROUND & 3D CANVAS
+   ========================================= */
+#bg-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: -2;
+    object-fit: cover;
+    opacity: 0.55;
+}
 
-    camera.aspect = sizes.width / sizes.height;
-    camera.updateProjectionMatrix();
+#webgl {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
 
-    renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-});
+/* =========================================
+   3. CONTENT WRAPPER
+   ========================================= */
+.content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+    padding: 20px 50px;
+}
 
-// 9. Mobile Menu Toggle (for all pages)
-const menuToggle = document.createElement('div');
-menuToggle.className = 'menu-toggle';
-menuToggle.innerHTML = '☰';
-document.querySelector('nav').appendChild(menuToggle);
+/* =========================================
+   4. HEADER & NAVIGATION
+   ========================================= */
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    position: relative;
+}
 
-menuToggle.addEventListener('click', () => {
-    const navLinks = document.querySelector('.nav-links');
-    navLinks.classList.toggle('active');
-});
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #f5c542;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #f5c542;
+    border-bottom: 2px solid #f5c542;
+}
+
+/* Mobile Menu Toggle Button */
+.menu-toggle {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #f5c542;
+    user-select: none;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* =========================================
+   5. HERO SECTION (index.html)
+   ========================================= */
+.hero {
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+    color: #fff;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.9);
+    max-width: 600px;
+}
+
+/* CTA Button */
+.cta-button {
+    display: inline-block;
+    padding: 15px 40px;
+    background-color: #f5c542;
+    color: #111;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 20px rgba(245, 197, 66, 0.3);
+}
+
+.cta-button:hover {
+    transform: scale(1.05) translateY(-3px);
+    background-color: #ffdb70;
+    box-shadow: 0 8px 25px rgba(245, 197, 66, 0.5);
+}
+
+/* =========================================
+   6. INNER PAGES (menu, about, contact)
+   ========================================= */
+.page-content {
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 0;
+}
+
+.page-content h1 {
+    font-size: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+    color: #f5c542;
+}
+
+/* --- Menu Grid --- */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.menu-item {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    text-align: left;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+    border-color: #f5c542;
+}
+
+.menu-item h3 {
+    color: #f5c542;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.menu-item p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+    margin-bottom: 15px;
+}
+
+.menu-item .price {
+    font-weight: bold;
+    color: #ffdb70;
+    font-size: 1.2rem;
+}
+
+/* --- About & Contact Text Blocks --- */
+.about-text,
+.contact-info {
+    max-width: 700px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 35px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    text-align: left;
+}
+
+.about-text p,
+.contact-info p {
+    margin-bottom: 15px;
+    line-height: 1.7;
+}
+
+.contact-info strong {
+    color: #f5c542;
+}
+
+/* =========================================
+   7. HOME PAGE SECTIONS
+   ========================================= */
+
+/* --- Shared Section Headings --- */
+.featured h2,
+.story h2,
+.why-us h2,
+.reviews h2,
+.cta-banner h2 {
+    font-size: 2.5rem;
+    color: #f5c542;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+    text-align: center;
+}
+
+/* --- Featured Drinks --- */
+.featured {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    max-width: 950px;
+    margin: 0 auto 40px;
+}
+
+.featured-card {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 30px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.featured-card:hover {
+    transform: translateY(-8px);
+    border-color: #f5c542;
+}
+
+.featured-img {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.featured-card h3 {
+    color: #f5c542;
+    margin-bottom: 10px;
+}
+
+.featured-card p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.featured-card .price {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #ffdb70;
+    font-size: 1.2rem;
+}
+
+/* --- Story Section --- */
+.story {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 80px 0;
+}
+
+.story-text {
+    flex: 1;
+    text-align: left;
+}
+
+.story-text h2 {
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.story-text p {
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.story-img {
+    flex: 1;
+    height: 320px;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    backdrop-filter: blur(5px);
+}
+
+.text-link {
+    color: #f5c542;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.05rem;
+    transition: color 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.text-link:hover {
+    color: #ffdb70;
+    letter-spacing: 1px;
+}
+
+/* --- Why Us --- */
+.why-us {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.why-item {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 35px 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.why-item:hover {
+    transform: translateY(-5px);
+    border-color: #f5c542;
+}
+
+.why-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.why-item h3 {
+    color: #f5c542;
+    margin-bottom: 10px;
+}
+
+.why-item p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+/* --- Reviews --- */
+.reviews {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.review-card {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    text-align: left;
+    transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.review-card p {
+    font-style: italic;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.review-card span {
+    color: #f5c542;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* --- CTA Banner --- */
+.cta-banner {
+    text-align: center;
+    padding: 80px 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-top: 1px solid rgba(245, 197, 66, 0.3);
+    border-bottom: 1px solid rgba(245, 197, 66, 0.3);
+    margin: 60px -50px;
+    backdrop-filter: blur(5px);
+}
+
+.cta-banner h2 {
+    margin-bottom: 15px;
+}
+
+.cta-banner p {
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* =========================================
+   8. FOOTER
+   ========================================= */
+footer {
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    padding: 30px 0 20px;
+    border-top: 1px solid rgba(245, 197, 66, 0.15);
+    margin-top: 40px;
+}
+
+footer p {
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   9. RESPONSIVE — TABLET & MOBILE
+   ========================================= */
+@media (max-width: 900px) {
+    .story {
+        flex-direction: column;
+        gap: 30px;
+        padding: 60px 0;
+    }
+
+    .story-text {
+        text-align: center;
+    }
+
+    .story-text h2 {
+        text-align: center;
+    }
+
+    .story-img {
+        width: 100%;
+        height: 220px;
+    }
+
+    .cta-banner {
+        margin: 60px -20px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Content padding */
+    .content {
+        padding: 20px;
+    }
+
+    /* Hero */
+    .hero h1 {
+        font-size: 2.5rem;
+        letter-spacing: 3px;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    /* Page headings */
+    .page-content h1 {
+        font-size: 2rem;
+    }
+
+    .featured h2,
+    .story h2,
+    .why-us h2,
+    .reviews h2,
+    .cta-banner h2 {
+        font-size: 1.7rem;
+        letter-spacing: 2px;
+    }
+
+    /* Mobile Navigation */
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 20px;
+        border-radius: 10px;
+        gap: 15px;
+        border: 1px solid rgba(245, 197, 66, 0.3);
+        z-index: 100;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-links a {
+        font-size: 1rem;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Section padding */
+    .featured,
+    .story,
+    .why-us,
+    .reviews {
+        padding: 50px 0;
+    }
+
+    /* Menu Grid */
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* About/Contact */
+    .about-text,
+    .contact-info {
+        padding: 25px 20px;
+    }
+
+    /* CTA Banner */
+    .cta-banner {
+        padding: 50px 15px;
+        margin: 40px -20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.3rem;
+    }
+
+    .hero h1 {
+        font-size: 1.9rem;
+    }
+
+    .cta-button {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+
+    .featured-img,
+    .why-icon {
+        font-size: 2.2rem;
+    }
+}
