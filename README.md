@@ -1,4 +1,4 @@
-# Coffee with Yvie - 3D Cafe Website
+# Coffee with ATG - 3D Cafe Website
 
 A modern, immersive 3D website for a coffee shop. Features a full-screen video background with interactive 3D floating elements (built with Three.js) that react to mouse movement.
 
