@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu | Coffee with Yvie</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <video autoplay muted loop id="bg-video">
+        <source src="your-video.mp4" type="video/mp4">
+    </video>
+    <canvas id="webgl"></canvas>
+
+    <div class="content">
+        <header>
+            <nav>
+                <div class="logo">Coffee with Yvie</div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="menu.html" class="active">Menu</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="page-content">
+            <h1>Our Menu</h1>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <h3>Espresso</h3>
+                    <p>Rich and bold single shot</p>
+                    <span class="price">$3.50</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Cappuccino</h3>
+                    <p>Espresso with steamed milk foam</p>
+                    <span class="price">$4.50</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Cold Brew</h3>
+                    <p>Steeped for 12 hours</p>
+                    <span class="price">$5.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Caramel Latte</h3>
+                    <p>Espresso, milk, and caramel syrup</p>
+                    <span class="price">$5.50</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Mocha</h3>
+                    <p>Chocolate and espresso blend</p>
+                    <span class="price">$5.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Matcha Latte</h3>
+                    <p>Green tea powder with steamed milk</p>
+                    <span class="price">$5.50</span>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Coffee with Yvie. All rights reserved.</p>
+        </footer>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
