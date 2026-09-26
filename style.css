@@ -1,3 +1,6 @@
+/* =========================================
+   1. RESET & BASE
+   ========================================= */
 * {
     margin: 0;
     padding: 0;
@@ -5,28 +8,48 @@
     font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    overflow: hidden;
+    overflow-x: hidden;
     background-color: #111;
     color: #fff;
+    line-height: 1.6;
 }
 
-/* Fullscreen Video Background */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #111;
+}
+::-webkit-scrollbar-thumb {
+    background: #6F4E37;
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #f5c542;
+}
+
+/* =========================================
+   2. VIDEO BACKGROUND & 3D CANVAS
+   ========================================= */
 #bg-video {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;        /* fills screen without distortion */
+    object-position: center;  /* keeps the coffee centered */
     z-index: -2;
-    object-fit: cover;
-    opacity: 0.6; /* Darkens video slightly so text is readable */
+    opacity: 0.55;
+    filter: blur(2px) brightness(0.6); /* soft, cafe-like feel */
 }
 
-/* 3D Canvas sits behind text but in front of video */
 #webgl {
     position: fixed;
     top: 0;
@@ -34,25 +57,31 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    pointer-events: none; /* Lets you click through to buttons */
+    pointer-events: none;
 }
 
-/* Content Overlay */
+/* =========================================
+   3. CONTENT WRAPPER
+   ========================================= */
 .content {
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     justify-content: space-between;
     padding: 20px 50px;
 }
 
+/* =========================================
+   4. HEADER & NAVIGATION
+   ========================================= */
 header nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
+    position: relative;
 }
 
 .logo {
@@ -60,7 +89,8 @@ header nav {
     font-weight: bold;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #f5c542; /* Coffee gold */
+    color: #f5c542;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
 }
 
 .nav-links {
@@ -74,32 +104,62 @@ header nav {
     text-decoration: none;
     font-size: 1.1rem;
     transition: color 0.3s ease;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links a.active {
     color: #f5c542;
+    border-bottom: 2px solid #f5c542;
 }
 
+/* Mobile Menu Toggle Button */
+.menu-toggle {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #f5c542;
+    user-select: none;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* =========================================
+   5. HERO SECTION (index.html)
+   ========================================= */
 .hero {
     text-align: center;
-    margin-bottom: 20vh;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
 }
 
 .hero h1 {
     font-size: 4rem;
     text-transform: uppercase;
     letter-spacing: 5px;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+    color: #fff;
 }
 
 .hero p {
     font-size: 1.2rem;
     margin-bottom: 30px;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+    text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.9);
+    max-width: 600px;
 }
 
+/* CTA Button */
 .cta-button {
+    display: inline-block;
     padding: 15px 40px;
     background-color: #f5c542;
     color: #111;
@@ -108,24 +168,499 @@ header nav {
     font-size: 1.1rem;
     font-weight: bold;
     text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: transform 0.3s ease, background 0.3s ease;
+    text-decoration: none;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 20px rgba(245, 197, 66, 0.3);
 }
 
 .cta-button:hover {
-    transform: scale(1.05);
+    transform: scale(1.05) translateY(-3px);
     background-color: #ffdb70;
+    box-shadow: 0 8px 25px rgba(245, 197, 66, 0.5);
 }
 
+/* =========================================
+   6. INNER PAGES (menu, about, contact)
+   ========================================= */
+.page-content {
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 0;
+}
+
+.page-content h1 {
+    font-size: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+    color: #f5c542;
+}
+
+/* --- Menu Grid --- */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.menu-item {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    text-align: left;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+    border-color: #f5c542;
+}
+
+.menu-item h3 {
+    color: #f5c542;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.menu-item p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+    margin-bottom: 15px;
+}
+
+.menu-item .price {
+    font-weight: bold;
+    color: #ffdb70;
+    font-size: 1.2rem;
+}
+
+/* --- About & Contact Text Blocks --- */
+.about-text,
+.contact-info {
+    max-width: 700px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 35px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    text-align: left;
+}
+
+.about-text p,
+.contact-info p {
+    margin-bottom: 15px;
+    line-height: 1.7;
+}
+
+.contact-info strong {
+    color: #f5c542;
+}
+
+/* =========================================
+   7. HOME PAGE SECTIONS
+   ========================================= */
+
+/* --- Shared Section Headings --- */
+.featured h2,
+.story h2,
+.why-us h2,
+.reviews h2,
+.cta-banner h2 {
+    font-size: 2.5rem;
+    color: #f5c542;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.9);
+    text-align: center;
+}
+
+/* --- Featured Drinks --- */
+.featured {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    max-width: 950px;
+    margin: 0 auto 40px;
+}
+
+.featured-card {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 25px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    overflow: hidden;
+}
+
+.featured-card:hover {
+    transform: translateY(-8px);
+    border-color: #f5c542;
+}
+
+/* Featured Card Image */
+.featured-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.featured-card:hover .featured-img {
+    transform: scale(1.05);
+}
+
+.featured-card h3 {
+    color: #f5c542;
+    margin-bottom: 10px;
+}
+
+.featured-card p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.featured-card .price {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #ffdb70;
+    font-size: 1.2rem;
+}
+
+/* --- Story Section --- */
+.story {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 80px 0;
+}
+
+.story-text {
+    flex: 1;
+    text-align: left;
+}
+
+.story-text h2 {
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.story-text p {
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.story-img {
+    flex: 1;
+    height: 320px;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+}
+
+.story-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.text-link {
+    color: #f5c542;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.05rem;
+    transition: color 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.text-link:hover {
+    color: #ffdb70;
+    letter-spacing: 1px;
+}
+
+/* --- Why Us --- */
+.why-us {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.why-item {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 35px 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.why-item:hover {
+    transform: translateY(-5px);
+    border-color: #f5c542;
+}
+
+.why-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.why-item h3 {
+    color: #f5c542;
+    margin-bottom: 10px;
+}
+
+.why-item p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+/* --- Reviews --- */
+.reviews {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.review-card {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    backdrop-filter: blur(5px);
+    text-align: left;
+    transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.review-card p {
+    font-style: italic;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.review-card span {
+    color: #f5c542;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* --- CTA Banner --- */
+.cta-banner {
+    text-align: center;
+    padding: 80px 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-top: 1px solid rgba(245, 197, 66, 0.3);
+    border-bottom: 1px solid rgba(245, 197, 66, 0.3);
+    margin: 60px -50px;
+    backdrop-filter: blur(5px);
+}
+
+.cta-banner h2 {
+    margin-bottom: 15px;
+}
+
+.cta-banner p {
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* =========================================
+   8. FOOTER
+   ========================================= */
 footer {
     text-align: center;
     font-size: 0.9rem;
     opacity: 0.7;
+    padding: 30px 0 20px;
+    border-top: 1px solid rgba(245, 197, 66, 0.15);
+    margin-top: 40px;
 }
 
-/* Responsive Adjustments */
+footer p {
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   9. RESPONSIVE — TABLET & MOBILE
+   ========================================= */
+@media (max-width: 900px) {
+    .story {
+        flex-direction: column;
+        gap: 30px;
+        padding: 60px 0;
+    }
+
+    .story-text {
+        text-align: center;
+    }
+
+    .story-text h2 {
+        text-align: center;
+    }
+
+    .story-img {
+        width: 100%;
+        height: 220px;
+    }
+
+    .cta-banner {
+        margin: 60px -20px;
+    }
+}
+
 @media (max-width: 768px) {
-    .hero h1 { font-size: 2.5rem; }
-    .nav-links { display: none; } /* Hide nav on small screens for simplicity */
-    .content { padding: 20px; }
+    /* Content padding */
+    .content {
+        padding: 20px;
+    }
+
+    /* Hero */
+    .hero h1 {
+        font-size: 2.5rem;
+        letter-spacing: 3px;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    /* Page headings */
+    .page-content h1 {
+        font-size: 2rem;
+    }
+
+    .featured h2,
+    .story h2,
+    .why-us h2,
+    .reviews h2,
+    .cta-banner h2 {
+        font-size: 1.7rem;
+        letter-spacing: 2px;
+    }
+
+    /* Mobile Navigation */
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 20px;
+        border-radius: 10px;
+        gap: 15px;
+        border: 1px solid rgba(245, 197, 66, 0.3);
+        z-index: 100;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-links a {
+        font-size: 1rem;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Section padding */
+    .featured,
+    .story,
+    .why-us,
+    .reviews {
+        padding: 50px 0;
+    }
+
+    /* Menu Grid */
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* About/Contact */
+    .about-text,
+    .contact-info {
+        padding: 25px 20px;
+    }
+
+    /* CTA Banner */
+    .cta-banner {
+        padding: 50px 15px;
+        margin: 40px -20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.3rem;
+    }
+
+    .hero h1 {
+        font-size: 1.9rem;
+    }
+
+    .cta-button {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+
+    .featured-img {
+        height: 150px;
+    }
+
+    .why-icon {
+        font-size: 2.2rem;
+    }
 }
