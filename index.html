@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee with Yvie | 3D Cafe</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Import Three.js for 3D elements -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop id="bg-video">
+        <!-- REPLACE 'your-video.mp4' WITH YOUR ACTUAL VIDEO FILE NAME -->
+        <source src="your-video.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <!-- 3D Canvas (Three.js will inject 3D objects here) -->
+    <canvas id="webgl"></canvas>
+
+    <!-- Website Content Overlay -->
+    <div class="content">
+        <header>
+            <nav>
+                <div class="logo">Coffee with Yvie</div>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Menu</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h1>Brewed to Perfection</h1>
+                <p>Experience the future of coffee. 3D immersive cafe experience.</p>
+                <button class="cta-button">Order Now</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Coffee with Yvie. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Main JavaScript File -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
